@@ -1,0 +1,21 @@
+name: "GoLang CI"
+
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container: castive/go-git
+    steps:
+      - run: |
+          go version
+          go test -v -coverpkg=./... ./...
+        name: Run GoLang tests
+  cq:
+    runs-on: ubuntu-latest
+    container: castive/go-git
+    steps:
+      - run: |
+          go get github.com/securego/gosec/cmd/gosec
+          gosec -tests ./...
+        name: Run GoLang code quality checks
