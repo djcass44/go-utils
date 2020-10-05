@@ -1,0 +1,1 @@
+module "gitlab.dcas.dev/open-source/go-utils"
