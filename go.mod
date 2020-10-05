@@ -1,4 +1,4 @@
-module gitlab.dcas.dev/open-source/go-utils
+module github.com/djcass44/go-utils
 
 go 1.15
 
