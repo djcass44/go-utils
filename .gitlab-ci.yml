@@ -1,0 +1,5 @@
+include:
+  - remote: 'https://gitlab.com/av1o/gitlab-ci-templates/-/raw/master/test/AutoTest.gitlab-ci.yml'
+  - remote: 'https://gitlab.com/av1o/gitlab-ci-templates/-/raw/master/verify/AutoCodeQuality.gitlab-ci.yml'
+  - remote: "https://gitlab.com/av1o/gitlab-ci-templates/-/raw/master/verify/CodeIntel.gitlab-ci.yml"
+  - remote: 'https://gitlab.com/av1o/gitlab-ci-templates/-/raw/master/workflows/Push-And-MR.gitlab-ci.yml'
