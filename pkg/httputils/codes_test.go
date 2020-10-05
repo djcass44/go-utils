@@ -18,9 +18,10 @@
 package httputils
 
 import (
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestIsHttpError(t *testing.T) {
@@ -29,6 +30,16 @@ func TestIsHttpError(t *testing.T) {
 	assert.False(t, IsHttpError(http.StatusOK))                 // success
 	assert.False(t, IsHttpError(http.StatusFound))              // redirect
 	assert.False(t, IsHttpError(http.StatusSwitchingProtocols)) // informational
+	assert.False(t, IsHttpError(601))                           // invalid code
+}
+
+func TestIsHttpInformation(t *testing.T) {
+	assert.True(t, IsHttpInformation(http.StatusSwitchingProtocols))   // informational
+	assert.False(t, IsHttpInformation(http.StatusOK))                  // success
+	assert.False(t, IsHttpInformation(http.StatusFound))               // redirect
+	assert.False(t, IsHttpInformation(http.StatusBadRequest))          // client error
+	assert.False(t, IsHttpInformation(http.StatusInternalServerError)) // server error
+	assert.False(t, IsHttpInformation(601))                            // invalid code
 }
 
 func TestIsHttpSuccess(t *testing.T) {
@@ -36,4 +47,32 @@ func TestIsHttpSuccess(t *testing.T) {
 	assert.False(t, IsHttpSuccess(http.StatusBadRequest))         // error
 	assert.False(t, IsHttpSuccess(http.StatusFound))              // redirect
 	assert.False(t, IsHttpSuccess(http.StatusSwitchingProtocols)) // informational
+	assert.False(t, IsHttpSuccess(601))                           // invalid code
+}
+
+func TestIsHttpRedirect(t *testing.T) {
+	assert.False(t, IsHttpRedirect(http.StatusSwitchingProtocols))  // informational
+	assert.False(t, IsHttpRedirect(http.StatusOK))                  // success
+	assert.True(t, IsHttpRedirect(http.StatusFound))                // redirect
+	assert.False(t, IsHttpRedirect(http.StatusBadRequest))          // client error
+	assert.False(t, IsHttpRedirect(http.StatusInternalServerError)) // server error
+	assert.False(t, IsHttpRedirect(601))                            // invalid code
+}
+
+func TestIsHttpClientError(t *testing.T) {
+	assert.False(t, IsHttpClientError(http.StatusSwitchingProtocols))  // informational
+	assert.False(t, IsHttpClientError(http.StatusOK))                  // success!
+	assert.False(t, IsHttpClientError(http.StatusFound))               // redirect
+	assert.True(t, IsHttpClientError(http.StatusBadRequest))           // client error
+	assert.False(t, IsHttpClientError(http.StatusInternalServerError)) // server error
+	assert.False(t, IsHttpClientError(601))                            // invalid code
+}
+
+func TestIsHttpServerError(t *testing.T) {
+	assert.False(t, IsHttpServerError(http.StatusSwitchingProtocols)) // informational
+	assert.False(t, IsHttpServerError(http.StatusOK))                 // success
+	assert.False(t, IsHttpServerError(http.StatusFound))              // redirect
+	assert.False(t, IsHttpServerError(http.StatusBadRequest))         // client error
+	assert.True(t, IsHttpServerError(http.StatusInternalServerError)) // server error
+	assert.False(t, IsHttpServerError(601))                           // invalid code
 }
