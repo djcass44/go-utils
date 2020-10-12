@@ -9,6 +9,7 @@ as well as utilities to reduce boilerplate or frequently used code.
 
 * [httputils](/pkg/httputils) - common utilities for `net/http`
 * [mathutils](/pkg/mathutils) - utilities for math
+* [cryptoutils](/pkg/cryptoutils) - utilities for `crypto`
 
 
 ### Contributing
