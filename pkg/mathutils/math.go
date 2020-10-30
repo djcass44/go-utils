@@ -32,3 +32,11 @@ func Max(a, b int) int {
 	}
 	return b
 }
+
+// MinFloat64 returns the smallest of the 2 given float64's
+func MinFloat64(a, b float64) float64 {
+	if a < b {
+		return a
+	}
+	return b
+}
