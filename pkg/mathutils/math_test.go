@@ -39,3 +39,9 @@ func TestMinFloat64(t *testing.T) {
 	assert.Equal(t, 0.004, MinFloat64(15.423423, 0.004))
 	assert.Equal(t, -3.0, MinFloat64(-3, -2.999999))
 }
+
+func TestMaxFloat64(t *testing.T) {
+	assert.Equal(t, 73.31, MaxFloat64(13.37, 73.31))
+	assert.Equal(t, 15.423423, MaxFloat64(15.423423, 0.004))
+	assert.Equal(t, -2.999999, MaxFloat64(-3, -2.999999))
+}

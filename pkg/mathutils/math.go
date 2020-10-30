@@ -40,3 +40,11 @@ func MinFloat64(a, b float64) float64 {
 	}
 	return b
 }
+
+// MaxFloat64 returns the largest of the 2 given float64's
+func MaxFloat64(a, b float64) float64 {
+	if a > b {
+		return a
+	}
+	return b
+}
