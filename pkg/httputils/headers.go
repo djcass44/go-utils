@@ -17,6 +17,8 @@
 
 package httputils
 
+import "net/http"
+
 // collection of http headers
 const (
 	ContentType               = "Content-Type"
@@ -24,3 +26,22 @@ const (
 	AccessControlAllowHeaders = "Access-Control-Allow-Headers"
 	AccessControlAllowMethods = "Access-Control-Allow-Methods"
 )
+
+// HeadersAsMap converts an http.Header into a map
+func HeadersAsMap(h *http.Header) map[string][]string {
+	headers := map[string][]string{}
+	for k, v := range *h {
+		headers[k] = v
+	}
+	return headers
+}
+
+// HeadersAsFlatMap converts an http.Header into a map, flattening duplicate values
+// e.g. X-My-Header=a,X-My-Header=b -> {X-My-Header: a}
+func HeadersAsFlatMap(h *http.Header) map[string]string {
+	headers := map[string]string{}
+	for k := range *h {
+		headers[k] = h.Get(k)
+	}
+	return headers
+}
