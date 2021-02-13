@@ -45,3 +45,10 @@ func HeadersAsFlatMap(h *http.Header) map[string]string {
 	}
 	return headers
 }
+
+// RemoveHeaders removes all matching headers from an http.Header
+func RemoveHeaders(h *http.Header, keys []string) {
+	for _, k := range keys {
+		h.Del(k)
+	}
+}

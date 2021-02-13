@@ -45,3 +45,16 @@ func TestHeadersAsFlatMap(t *testing.T) {
 	}
 	assert.EqualValues(t, expected, headers)
 }
+
+func TestRemoveHeaders(t *testing.T) {
+	headers := &http.Header{}
+	headers.Add("x", "y")
+	headers.Add("Content-Type", ApplicationJSON)
+
+	expected := &http.Header{
+		"X": []string{"y"},
+	}
+
+	RemoveHeaders(headers, []string{"Content-Type"})
+	assert.EqualValues(t, expected, headers)
+}
