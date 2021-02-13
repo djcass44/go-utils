@@ -1,5 +1,5 @@
 /*
- *    Copyright 2020 Django Cass
+ *    Copyright 2021 Django Cass
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,11 +15,19 @@
  *
  */
 
-package httputils
+package clientutils
 
-// collection of common content-type values
-const (
-	ApplicationJSON     = "application/json"
-	TextPlain           = "text/plain"
-	ApplicationActuator = "application/vnd.spring-boot.actuator.v3+json"
+import (
+	"crypto/tls"
+	"github.com/stretchr/testify/assert"
+	"net/http"
+	"testing"
 )
+
+func TestGetClient(t *testing.T) {
+	v2client := GetClient(true)
+	v3client := GetClient(false)
+
+	assert.EqualValues(t, tls.VersionTLS12, v2client.Transport.(*http.Transport).TLSClientConfig.MinVersion)
+	assert.EqualValues(t, tls.VersionTLS13, v3client.Transport.(*http.Transport).TLSClientConfig.MinVersion)
+}

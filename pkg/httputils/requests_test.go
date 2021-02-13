@@ -68,6 +68,6 @@ func TestReturnJSON(t *testing.T) {
 	body, _ := ioutil.ReadAll(resp.Body)
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	assert.Equal(t, ApplicationJson, resp.Header.Get(ContentType))
+	assert.Equal(t, ApplicationJSON, resp.Header.Get(ContentType))
 	assert.Equal(t, `{"Name":"test","ID":54}`, string(body))
 }

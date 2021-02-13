@@ -47,7 +47,7 @@ func ReturnJSON(w http.ResponseWriter, code int, v interface{}) {
 		return
 	}
 	// set the content type
-	w.Header().Set(ContentType, ApplicationJson)
+	w.Header().Set(ContentType, ApplicationJSON)
 	w.WriteHeader(code)
 	_, _ = w.Write(data)
 }

@@ -24,14 +24,14 @@ import (
 )
 
 var headers = &http.Header{
-	"Content-Type": []string{ApplicationJson, ApplicationActuator},
+	"Content-Type": []string{ApplicationJSON, ApplicationActuator},
 	"X-My-Header":  []string{"Test"},
 }
 
 func TestHeadersAsMap(t *testing.T) {
 	headers := HeadersAsMap(headers)
 	expected := map[string][]string{
-		"Content-Type": {ApplicationJson, ApplicationActuator},
+		"Content-Type": {ApplicationJSON, ApplicationActuator},
 		"X-My-Header":  {"Test"},
 	}
 	assert.EqualValues(t, expected, headers)
@@ -40,7 +40,7 @@ func TestHeadersAsMap(t *testing.T) {
 func TestHeadersAsFlatMap(t *testing.T) {
 	headers := HeadersAsFlatMap(headers)
 	expected := map[string]string{
-		"Content-Type": ApplicationJson,
+		"Content-Type": ApplicationJSON,
 		"X-My-Header":  "Test",
 	}
 	assert.EqualValues(t, expected, headers)

@@ -26,28 +26,28 @@ const (
 )
 
 var (
-	// IsHttpInformation returns true if a status code is of the 1xx range (100 - 199).
-	IsHttpInformation = statusGroupEqual(statusCodeGroupInfo)
+	// IsHTTPInformation returns true if a status code is of the 1xx range (100 - 199).
+	IsHTTPInformation = statusGroupEqual(statusCodeGroupInfo)
 
-	// IsHttpSuccess returns true if a status code is of the 2xx range (200 - 299).
-	IsHttpSuccess = statusGroupEqual(statusCodeGroupSuccess)
+	// IsHTTPSuccess returns true if a status code is of the 2xx range (200 - 299).
+	IsHTTPSuccess = statusGroupEqual(statusCodeGroupSuccess)
 
-	// IsHttpRedirect returns true if a status code is of the 3xx range (300 - 399).
-	IsHttpRedirect = statusGroupEqual(statusCodeGroupRedirect)
+	// IsHTTPRedirect returns true if a status code is of the 3xx range (300 - 399).
+	IsHTTPRedirect = statusGroupEqual(statusCodeGroupRedirect)
 
-	// IsHttpClientError returns true if a status code is of the 4xx range (400 - 499).
-	IsHttpClientError = statusGroupEqual(statusCodeGroupClientErr)
+	// IsHTTPClientError returns true if a status code is of the 4xx range (400 - 499).
+	IsHTTPClientError = statusGroupEqual(statusCodeGroupClientErr)
 
-	// IsHttpServerError returns true if a status code is of the 5xx range (500 - 599).
-	IsHttpServerError = statusGroupEqual(statusCodeGroupServerErr)
+	// IsHTTPServerError returns true if a status code is of the 5xx range (500 - 599).
+	IsHTTPServerError = statusGroupEqual(statusCodeGroupServerErr)
 )
 
-// IsHttpError returns true if a status code is 4xx or 5xx.
-func IsHttpError(code int) bool {
-	return IsHttpClientError(code) || IsHttpServerError(code)
+// IsHTTPError returns true if a status code is 4xx or 5xx.
+func IsHTTPError(code int) bool {
+	return IsHTTPClientError(code) || IsHTTPServerError(code)
 }
 
-// Returns a function that checks if a given status code belongs to a status code group.
+// statusGroupEqual returns a function that checks if a given status code belongs to a status code group.
 func statusGroupEqual(groupCode int) func(int) bool {
 	// statusCodeGroup returns a status code group (1xx, 2xx, ...) for a given status code.
 	statusCodeGroup := func(code int) int {

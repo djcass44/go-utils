@@ -11,6 +11,7 @@ as well as utilities to reduce boilerplate or frequently used code.
 * [mathutils](/pkg/mathutils) - utilities for math
 * [cryptoutils](/pkg/cryptoutils) - utilities for `crypto`
 * [sliceutils](/pkg/sliceutils) - utilities for Slices
+* [clientutils](/pkg/clientutils) - utilities for Clients (*currently only `net/http`*)
 
 
 ### Contributing
