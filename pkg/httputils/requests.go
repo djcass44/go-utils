@@ -20,6 +20,8 @@ package httputils
 import (
 	"encoding/json"
 	log "github.com/sirupsen/logrus"
+	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/proto"
 	"io/ioutil"
 	"net/http"
 )
@@ -44,6 +46,24 @@ func ReturnJSON(w http.ResponseWriter, code int, v interface{}) {
 	if err != nil {
 		log.WithError(err).Error("failed to marshal given struct into json")
 		http.Error(w, "failed to marshal struct", http.StatusInternalServerError)
+		return
+	}
+	// set the content type
+	w.Header().Set(ContentType, ApplicationJSON)
+	w.WriteHeader(code)
+	_, _ = w.Write(data)
+}
+
+// ReturnProtoJSON converts a given proto.Message into JSON and writes
+// it into an HTTP response.
+//
+// You should not write any additional data to the http.ResponseWriter
+// after this.
+func ReturnProtoJSON(w http.ResponseWriter, code int, v proto.Message) {
+	data, err := protojson.Marshal(v)
+	if err != nil {
+		log.WithError(err).Error("failed to marshal given proto.Message into JSON")
+		http.Error(w, "failed to marshal response", http.StatusInternalServerError)
 		return
 	}
 	// set the content type
