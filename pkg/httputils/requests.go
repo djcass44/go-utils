@@ -60,7 +60,10 @@ func ReturnJSON(w http.ResponseWriter, code int, v interface{}) {
 // You should not write any additional data to the http.ResponseWriter
 // after this.
 func ReturnProtoJSON(w http.ResponseWriter, code int, v proto.Message) {
-	data, err := protojson.Marshal(v)
+	cfg := protojson.MarshalOptions{
+		EmitUnpopulated: true,
+	}
+	data, err := cfg.Marshal(v)
 	if err != nil {
 		log.WithError(err).Error("failed to marshal given proto.Message into JSON")
 		http.Error(w, "failed to marshal response", http.StatusInternalServerError)
