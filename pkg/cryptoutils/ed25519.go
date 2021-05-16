@@ -26,6 +26,13 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+var (
+	// ErrMissingOrBadBlock is thrown when the PEM cannot be correctly decoded
+	ErrMissingOrBadBlock = errors.New("failed to parse PEM block containing the key")
+	// ErrKeyUnknown is thrown when the key type is not ed25519
+	ErrKeyUnknown = errors.New("unexpected or unknown type of key")
+)
+
 // MarshalED25519PublicKey converts a crypto.ed25519 PublicKey into a string
 func MarshalED25519PublicKey(pk *ed25519.PublicKey) (string, error) {
 	asn1Bytes, err := x509.MarshalPKIXPublicKey(*pk)
@@ -49,7 +56,7 @@ func ParseED25519PrivateKey(raw []byte) (*ed25519.PrivateKey, error) {
 	// decode the pem
 	block, _ := pem.Decode(raw)
 	if block == nil || block.Type != "PRIVATE KEY" {
-		return nil, errors.New("failed to parse PEM block containing the private key")
+		return nil, ErrMissingOrBadBlock
 	}
 	log.Debugf("successfully decoded PEM key of type %s", block.Type)
 	priv, err := x509.ParsePKCS8PrivateKey(block.Bytes)
@@ -61,16 +68,16 @@ func ParseED25519PrivateKey(raw []byte) (*ed25519.PrivateKey, error) {
 	case ed25519.PrivateKey:
 		return &priv, nil
 	default:
-		return nil, errors.New("unexpected or unknown type of private key")
+		return nil, ErrKeyUnknown
 	}
 }
 
-// ParseED25519PrivateKey attempts to parse a crypto.ed25519 PublicKey from a given byte slice
+// ParseED25519PublicKey attempts to parse a crypto.ed25519 PublicKey from a given byte slice
 func ParseED25519PublicKey(raw []byte) (*ed25519.PublicKey, error) {
 	// decode the pem
 	block, _ := pem.Decode(raw)
 	if block == nil || block.Type != "PUBLIC KEY" {
-		return nil, errors.New("failed to parse PEM block containing the public key")
+		return nil, ErrMissingOrBadBlock
 	}
 	log.Debugf("successfully decoded PEM key of type %s", block.Type)
 	pub, err := x509.ParsePKIXPublicKey(block.Bytes)
@@ -82,6 +89,6 @@ func ParseED25519PublicKey(raw []byte) (*ed25519.PublicKey, error) {
 	case ed25519.PublicKey:
 		return &pub, nil
 	default:
-		return nil, errors.New("unexpected or unknown type of public key")
+		return nil, ErrKeyUnknown
 	}
 }
