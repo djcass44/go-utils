@@ -28,14 +28,24 @@ import (
 
 // WithBody reads an HTTP JSON request body and marshals it into a given struct
 // Param v must be a pointer
-func WithBody(r *http.Request, v interface{}) (err error) {
+func WithBody(r *http.Request, v interface{}) error {
 	defer r.Body.Close()
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		return err
 	}
-	err = json.Unmarshal(body, v)
-	return
+	return json.Unmarshal(body, v)
+}
+
+// WithProtoBody reads an HTTP JSON request body and marshals it into a
+// given proto.Message
+func WithProtoBody(r *http.Request, v proto.Message) error {
+	defer r.Body.Close()
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return err
+	}
+	return protojson.Unmarshal(body, v)
 }
 
 // ReturnJSON converts a given interface into JSON and writes it into an http response
