@@ -12,7 +12,7 @@ as well as utilities to reduce boilerplate or frequently used code.
 * [cryptoutils](/pkg/cryptoutils) - utilities for `crypto`
 * [sliceutils](/pkg/sliceutils) - utilities for Slices
 * [clientutils](/pkg/clientutils) - utilities for Clients (*currently only `net/http`*)
-
+* [email](/pkg/emailutils) - utilities for `email`
 
 ### Contributing
 
