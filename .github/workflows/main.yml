@@ -29,15 +29,15 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Get dependencies
-        working-directory: $${ matrix.dir }}
+        working-directory: $${{ matrix.dir }}
         run: go mod download
 
       - name: Test
-        working-directory: $${ matrix.dir }}
+        working-directory: $${{ matrix.dir }}
         run: go test -v -coverpkg=./... ./...
 
       - name: Code Quality
-        working-directory: $${ matrix.dir }}
+        working-directory: $${{ matrix.dir }}
         run: |
           go install github.com/securego/gosec/cmd/gosec/v2@latest
           gosec -tests ./...
