@@ -19,6 +19,7 @@ package logging
 
 import (
 	"github.com/go-logr/logr"
+	"gitlab.com/av1o/cap10/pkg/client"
 	"go.opentelemetry.io/otel"
 	"net/http"
 )
@@ -26,6 +27,8 @@ import (
 const (
 	KeyTraceID = "trace_id"
 	KeySpanID  = "span_id"
+	KeyUserSub = "sub"
+	KeyUserIss = "iss"
 )
 
 type Middleware struct {
@@ -47,6 +50,13 @@ func (m *Middleware) ServeHTTP(h http.Handler) http.Handler {
 			KeyTraceID, span.SpanContext().TraceID(),
 			KeySpanID, span.SpanContext().SpanID(),
 		)
+		user, ok := client.GetContextUser(ctx)
+		if ok {
+			log = log.WithValues(
+				KeyUserSub, user.Sub,
+				KeyUserIss, user.Iss,
+			)
+		}
 		// continue as normal
 		h.ServeHTTP(w, r.WithContext(logr.NewContext(ctx, log)))
 	})

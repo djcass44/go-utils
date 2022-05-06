@@ -11,23 +11,33 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dir:
+          - flagging
+          - logging
+          - otel
+          - utilities
     steps:
       - name: Set up Go 1.x
         uses: actions/setup-go@v2
         with:
-          go-version: ^1.15
+          go-version: ^1.18
         id: go
 
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2
 
       - name: Get dependencies
+        working-directory: $${ matrix.dir }}
         run: go mod download
 
       - name: Test
+        working-directory: $${ matrix.dir }}
         run: go test -v -coverpkg=./... ./...
 
       - name: Code Quality
+        working-directory: $${ matrix.dir }}
         run: |
-          go get github.com/securego/gosec/cmd/gosec
+          go install github.com/securego/gosec/cmd/gosec/v2@latest
           gosec -tests ./...
