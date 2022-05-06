@@ -41,9 +41,8 @@ jobs:
 
       - name: Run Gosec Security Scanner
         working-directory: ${{ matrix.dir }}
-        run: gosec
-        with:
-          args: '-no-fail -fmt sarif -out results.sarif ./...'
+        run: gosec -no-fail -fmt sarif -out results.sarif ./...
+
       - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@v1
         with:
