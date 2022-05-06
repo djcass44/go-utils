@@ -49,7 +49,8 @@ type Options struct {
 }
 
 // Build sets up the global OpenTelemetry context.
-func Build(log logr.Logger, opts Options) error {
+func Build(ctx context.Context, opts Options) error {
+	log := logr.FromContextOrDiscard(ctx)
 	log.V(1).Info("enabling OpenTelemetry", "Service", opts.ServiceName, "Env", opts.Environment, "k8s.namespace", opts.KubeNamespace, "SampleRate", opts.SampleRate, "DefaultExporter", opts.Exporter == nil)
 	var exporter sdktrace.SpanExporter
 	if opts.Exporter == nil {

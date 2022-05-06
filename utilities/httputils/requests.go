@@ -18,6 +18,7 @@
 package httputils
 
 import (
+	"context"
 	"encoding/json"
 	"github.com/go-logr/logr"
 	"go.opentelemetry.io/otel"
@@ -29,8 +30,9 @@ import (
 
 // WithBody reads an HTTP JSON request body and marshals it into a given struct
 // Param v must be a pointer
-func WithBody(log logr.Logger, r *http.Request, v interface{}) error {
-	_, span := otel.Tracer("").Start(r.Context(), "httputils_withBody")
+func WithBody(r *http.Request, v interface{}) error {
+	ctx, span := otel.Tracer("").Start(r.Context(), "httputils_withBody")
+	log := logr.FromContextOrDiscard(ctx)
 	defer func() {
 		log.V(2).Error(r.Body.Close(), "closing request body")
 		span.End()
@@ -46,8 +48,9 @@ func WithBody(log logr.Logger, r *http.Request, v interface{}) error {
 
 // WithProtoBody reads an HTTP JSON request body and marshals it into a
 // given proto.Message
-func WithProtoBody(log logr.Logger, r *http.Request, v proto.Message) error {
-	_, span := otel.Tracer("").Start(r.Context(), "httputils_withProtoBody")
+func WithProtoBody(r *http.Request, v proto.Message) error {
+	ctx, span := otel.Tracer("").Start(r.Context(), "httputils_withProtoBody")
+	log := logr.FromContextOrDiscard(ctx)
 	defer func() {
 		log.V(2).Error(r.Body.Close(), "closing request body")
 		span.End()
@@ -64,7 +67,10 @@ func WithProtoBody(log logr.Logger, r *http.Request, v proto.Message) error {
 // ReturnJSON converts a given interface into JSON and writes it into a http.ResponseWriter.
 //
 // You should not write any additional data to the http.ResponseWriter after this
-func ReturnJSON(log logr.Logger, w http.ResponseWriter, code int, v interface{}) {
+func ReturnJSON(ctx context.Context, w http.ResponseWriter, code int, v interface{}) {
+	ctx, span := otel.Tracer("").Start(ctx, "httputils_returnJson")
+	defer span.End()
+	log := logr.FromContextOrDiscard(ctx)
 	// convert our interface into JSON
 	data, err := json.Marshal(v)
 	if err != nil {
@@ -84,7 +90,10 @@ func ReturnJSON(log logr.Logger, w http.ResponseWriter, code int, v interface{})
 //
 // You should not write any additional data to the http.ResponseWriter
 // after this.
-func ReturnProtoJSON(log logr.Logger, w http.ResponseWriter, code int, v proto.Message) {
+func ReturnProtoJSON(ctx context.Context, w http.ResponseWriter, code int, v proto.Message) {
+	ctx, span := otel.Tracer("").Start(ctx, "httputils_returnProtoJson")
+	defer span.End()
+	log := logr.FromContextOrDiscard(ctx)
 	cfg := protojson.MarshalOptions{
 		EmitUnpopulated: true,
 	}
