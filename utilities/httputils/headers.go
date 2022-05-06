@@ -27,7 +27,7 @@ const (
 	AccessControlAllowMethods = "Access-Control-Allow-Methods"
 )
 
-// HeadersAsMap converts an http.Header into a map
+// HeadersAsMap converts a http.Header into a map
 func HeadersAsMap(h *http.Header) map[string][]string {
 	headers := map[string][]string{}
 	for k, v := range *h {
@@ -36,7 +36,7 @@ func HeadersAsMap(h *http.Header) map[string][]string {
 	return headers
 }
 
-// HeadersAsFlatMap converts an http.Header into a map, flattening duplicate values
+// HeadersAsFlatMap converts a http.Header into a map, flattening duplicate values
 // e.g. X-My-Header=a,X-My-Header=b -> {X-My-Header: a}
 func HeadersAsFlatMap(h *http.Header) map[string]string {
 	headers := map[string]string{}
@@ -46,7 +46,7 @@ func HeadersAsFlatMap(h *http.Header) map[string]string {
 	return headers
 }
 
-// RemoveHeaders removes all matching headers from an http.Header
+// RemoveHeaders removes all matching headers from a http.Header
 func RemoveHeaders(h *http.Header, keys []string) {
 	for _, k := range keys {
 		h.Del(k)

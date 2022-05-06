@@ -51,7 +51,7 @@ func IsHTTPError(code int) bool {
 func statusGroupEqual(groupCode int) func(int) bool {
 	// statusCodeGroup returns a status code group (1xx, 2xx, ...) for a given status code.
 	statusCodeGroup := func(code int) int {
-		// Status code group is indicated by the first digit, ie. a result of integer division is enough.
+		// Status code group is indicated by the first digit, i.e. a result of integer division is enough.
 		firstDigit := code / 100
 
 		return firstDigit * 100

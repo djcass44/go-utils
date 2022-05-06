@@ -54,7 +54,7 @@ func TestWithBody(t *testing.T) {
 
 func TestReturnJSON(t *testing.T) {
 	handler := func(w http.ResponseWriter, r *http.Request) {
-		ReturnJSON(w, http.StatusOK, &testStruct{
+		ReturnJSON(r.Context(), w, http.StatusOK, &testStruct{
 			Name: "test",
 			ID:   54,
 		})

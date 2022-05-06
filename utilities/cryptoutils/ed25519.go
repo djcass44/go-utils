@@ -23,7 +23,7 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"errors"
-	log "github.com/sirupsen/logrus"
+	"github.com/go-logr/logr"
 )
 
 var (
@@ -34,9 +34,10 @@ var (
 )
 
 // MarshalED25519PublicKey converts a crypto.ed25519 PublicKey into a string
-func MarshalED25519PublicKey(pk *ed25519.PublicKey) (string, error) {
+func MarshalED25519PublicKey(log logr.Logger, pk *ed25519.PublicKey) (string, error) {
 	asn1Bytes, err := x509.MarshalPKIXPublicKey(*pk)
 	if err != nil {
+		log.Error(err, "failed to marshal public key")
 		return "", err
 	}
 	pemKey := &pem.Block{
@@ -46,19 +47,20 @@ func MarshalED25519PublicKey(pk *ed25519.PublicKey) (string, error) {
 	buf := new(bytes.Buffer)
 	err = pem.Encode(buf, pemKey)
 	if err != nil {
+		log.Error(err, "failed to encode pem key")
 		return "", err
 	}
 	return buf.String(), err
 }
 
 // ParseED25519PrivateKey attempts to parse a crypto.ed25519 PrivateKey from a given byte slice
-func ParseED25519PrivateKey(raw []byte) (*ed25519.PrivateKey, error) {
+func ParseED25519PrivateKey(log logr.Logger, raw []byte) (*ed25519.PrivateKey, error) {
 	// decode the pem
 	block, _ := pem.Decode(raw)
 	if block == nil || block.Type != "PRIVATE KEY" {
 		return nil, ErrMissingOrBadBlock
 	}
-	log.Debugf("successfully decoded PEM key of type %s", block.Type)
+	log.V(1).Info("successfully decoded PEM key", "Type", block.Type)
 	priv, err := x509.ParsePKCS8PrivateKey(block.Bytes)
 	if err != nil {
 		return nil, err
@@ -73,13 +75,14 @@ func ParseED25519PrivateKey(raw []byte) (*ed25519.PrivateKey, error) {
 }
 
 // ParseED25519PublicKey attempts to parse a crypto.ed25519 PublicKey from a given byte slice
-func ParseED25519PublicKey(raw []byte) (*ed25519.PublicKey, error) {
+func ParseED25519PublicKey(log logr.Logger, raw []byte) (*ed25519.PublicKey, error) {
 	// decode the pem
 	block, _ := pem.Decode(raw)
 	if block == nil || block.Type != "PUBLIC KEY" {
+		log.Error(ErrMissingOrBadBlock, "block is nil or unexpected type")
 		return nil, ErrMissingOrBadBlock
 	}
-	log.Debugf("successfully decoded PEM key of type %s", block.Type)
+	log.V(1).Info("successfully decoded PEM key", "Type", block.Type)
 	pub, err := x509.ParsePKIXPublicKey(block.Bytes)
 	if err != nil {
 		return nil, err

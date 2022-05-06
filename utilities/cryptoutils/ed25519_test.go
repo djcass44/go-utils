@@ -18,6 +18,7 @@
 package cryptoutils
 
 import (
+	"github.com/go-logr/logr/testr"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -28,25 +29,25 @@ MCowBQYDK2VwAyEAwXHAsO+gSuBl61cxjndzjLOjFJS8JGD6IAxzADku708=
 `
 
 func TestParseED25519PublicKeyWithValidKey(t *testing.T) {
-	key, err := ParseED25519PublicKey([]byte(pemPublicKey))
+	key, err := ParseED25519PublicKey(testr.New(t), []byte(pemPublicKey))
 
 	assert.NoError(t, err)
 	assert.NotEmpty(t, key)
 }
 
 func TestParseED25519PublicKeyWithInvalidKey(t *testing.T) {
-	key, err := ParseED25519PublicKey([]byte("this is totally not a key"))
+	key, err := ParseED25519PublicKey(testr.New(t), []byte("this is totally not a key"))
 
 	assert.Error(t, err)
 	assert.Empty(t, key)
 }
 
 func TestMarshalED25519PublicKey(t *testing.T) {
-	key, err := ParseED25519PublicKey([]byte(pemPublicKey))
+	key, err := ParseED25519PublicKey(testr.New(t), []byte(pemPublicKey))
 	assert.NoError(t, err)
 	assert.NotEmpty(t, key)
 
-	str, err := MarshalED25519PublicKey(key)
+	str, err := MarshalED25519PublicKey(testr.New(t), key)
 	assert.NoError(t, err)
 	assert.EqualValues(t, pemPublicKey, str)
 }

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2020 Django Cass
+ *    Copyright 2022 Django Cass
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,20 +15,22 @@
  *
  */
 
-package mathutils
+package flagging
 
-// Min returns the smallest of the 2 given integers
-func Min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
+import "github.com/Unleash/unleash-client-go/v3"
+
+var defaultClient *unleash.Client
+
+// Initialize will specify the options to be used by the default client.
+func Initialize(options ...unleash.ConfigOption) (err error) {
+	defaultClient, err = unleash.NewClient(options...)
+	return
 }
 
-// Max returns the largest of the 2 given integers
-func Max(a, b int) int {
-	if a > b {
-		return a
+// IsEnabled queries the default client whether the specified feature is enabled or not.
+func IsEnabled(feature string, options ...unleash.FeatureOption) bool {
+	if defaultClient == nil {
+		return false
 	}
-	return b
+	return unleash.IsEnabled(feature, options...)
 }
