@@ -36,8 +36,14 @@ jobs:
         working-directory: ${{ matrix.dir }}
         run: go test -v -coverpkg=./... ./...
 
-      - name: Code Quality
+      - name: Run Gosec Security Scanner
+        uses: securego/gosec@master
         working-directory: ${{ matrix.dir }}
-        run: |
-          go install github.com/securego/gosec/cmd/gosec/v2@latest
-          gosec -tests ./...
+        run: gosec
+        with:
+          args: '-no-fail -fmt sarif -out results.sarif ./...'
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          # Path to SARIF file relative to the root of the repository
+          sarif_file: ${{ matrix.dir }}/results.sarif
