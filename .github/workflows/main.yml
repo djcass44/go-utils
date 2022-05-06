@@ -36,8 +36,10 @@ jobs:
         working-directory: ${{ matrix.dir }}
         run: go test -v -coverpkg=./... ./...
 
+      - name: Install Gosec
+        run: go install github.com/securego/gosec/v2/cmd/gosec@latest
+
       - name: Run Gosec Security Scanner
-        uses: securego/gosec@master
         working-directory: ${{ matrix.dir }}
         run: gosec
         with:
