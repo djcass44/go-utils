@@ -18,6 +18,7 @@
 package httputils
 
 import (
+	"github.com/go-logr/logr/testr"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"net/http"
@@ -34,7 +35,7 @@ type testStruct struct {
 func TestWithBody(t *testing.T) {
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		var testInstance testStruct
-		err := WithBody(r, &testInstance)
+		err := WithBody(testr.New(t), r, &testInstance)
 		if err != nil {
 			t.Error(err)
 		}
@@ -54,7 +55,7 @@ func TestWithBody(t *testing.T) {
 
 func TestReturnJSON(t *testing.T) {
 	handler := func(w http.ResponseWriter, r *http.Request) {
-		ReturnJSON(w, http.StatusOK, &testStruct{
+		ReturnJSON(testr.New(t), w, http.StatusOK, &testStruct{
 			Name: "test",
 			ID:   54,
 		})

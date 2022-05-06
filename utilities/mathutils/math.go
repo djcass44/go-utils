@@ -17,16 +17,18 @@
 
 package mathutils
 
-// Min returns the smallest of the 2 given integers
-func Min(a, b int) int {
+import "golang.org/x/exp/constraints"
+
+// Min returns the smallest of the 2 given numbers
+func Min[T constraints.Ordered](a, b T) T {
 	if a < b {
 		return a
 	}
 	return b
 }
 
-// Max returns the largest of the 2 given integers
-func Max(a, b int) int {
+// Max returns the largest of the 2 given numbers
+func Max[T constraints.Ordered](a, b T) T {
 	if a > b {
 		return a
 	}

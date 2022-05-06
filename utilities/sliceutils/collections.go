@@ -15,12 +15,14 @@
  *
  */
 
-// Useful functions for dealing with slices
+// Package sliceutils provides useful functions for dealing with slices
 // https://gobyexample.com/collection-functions
 package sliceutils
 
+import "golang.org/x/exp/constraints"
+
 // Index returns the first index of t or -1 if no match
-func Index(vs []string, t string) int {
+func Index[T constraints.Ordered](vs []T, t T) int {
 	for i, v := range vs {
 		if v == t {
 			return i
@@ -30,12 +32,12 @@ func Index(vs []string, t string) int {
 }
 
 // Includes returns true if t is contained within vs
-func Includes(vs []string, t string) bool {
+func Includes[T constraints.Ordered](vs []T, t T) bool {
 	return Index(vs, t) >= 0
 }
 
-// Any returns true if one of the strings in vs satisfies f
-func Any(vs []string, f func(string) bool) bool {
+// Any returns true if one of the values in vs satisfies f
+func Any[T any](vs []T, f func(T) bool) bool {
 	for _, v := range vs {
 		if f(v) {
 			return true
@@ -45,7 +47,7 @@ func Any(vs []string, f func(string) bool) bool {
 }
 
 // All returns true if every one of the strings in vs satisfies f
-func All(vs []string, f func(string) bool) bool {
+func All[T any](vs []T, f func(T) bool) bool {
 	for _, v := range vs {
 		if !f(v) {
 			return false
@@ -55,8 +57,8 @@ func All(vs []string, f func(string) bool) bool {
 }
 
 // Filter returns a new slice containing all the strings in vs that satisfy f
-func Filter(vs []string, f func(string) bool) []string {
-	vsf := make([]string, 0)
+func Filter[T any](vs []T, f func(T) bool) []T {
+	vsf := make([]T, 0)
 	for _, v := range vs {
 		if f(v) {
 			vsf = append(vsf, v)
@@ -65,9 +67,9 @@ func Filter(vs []string, f func(string) bool) []string {
 	return vsf
 }
 
-// Map returns a new slice containing the results of applying f to each string in vs
-func Map(vs []string, f func(string) string) []string {
-	vsm := make([]string, len(vs))
+// Map returns a new slice containing the results of applying f to each value in vs
+func Map[T any, K any](vs []T, f func(T) K) []K {
+	vsm := make([]K, len(vs))
 	for i, v := range vs {
 		vsm[i] = f(v)
 	}

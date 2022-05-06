@@ -19,7 +19,8 @@ package httputils
 
 import (
 	"encoding/json"
-	log "github.com/sirupsen/logrus"
+	"github.com/go-logr/logr"
+	"go.opentelemetry.io/otel"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 	"io/ioutil"
@@ -28,36 +29,50 @@ import (
 
 // WithBody reads an HTTP JSON request body and marshals it into a given struct
 // Param v must be a pointer
-func WithBody(r *http.Request, v interface{}) error {
-	defer r.Body.Close()
+func WithBody(log logr.Logger, r *http.Request, v interface{}) error {
+	_, span := otel.Tracer("").Start(r.Context(), "httputils_withBody")
+	defer func() {
+		log.V(2).Error(r.Body.Close(), "closing request body")
+		span.End()
+	}()
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
+		log.Error(err, "failed to read request body")
 		return err
 	}
+	log.V(2).Info("successfully read request body", "Body", string(body))
 	return json.Unmarshal(body, v)
 }
 
 // WithProtoBody reads an HTTP JSON request body and marshals it into a
 // given proto.Message
-func WithProtoBody(r *http.Request, v proto.Message) error {
-	defer r.Body.Close()
+func WithProtoBody(log logr.Logger, r *http.Request, v proto.Message) error {
+	_, span := otel.Tracer("").Start(r.Context(), "httputils_withProtoBody")
+	defer func() {
+		log.V(2).Error(r.Body.Close(), "closing request body")
+		span.End()
+	}()
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
+		log.Error(err, "failed to read request body")
 		return err
 	}
+	log.V(2).Info("successfully read request body", "Body", string(body))
 	return protojson.Unmarshal(body, v)
 }
 
-// ReturnJSON converts a given interface into JSON and writes it into an http response
+// ReturnJSON converts a given interface into JSON and writes it into a http.ResponseWriter.
+//
 // You should not write any additional data to the http.ResponseWriter after this
-func ReturnJSON(w http.ResponseWriter, code int, v interface{}) {
+func ReturnJSON(log logr.Logger, w http.ResponseWriter, code int, v interface{}) {
 	// convert our interface into JSON
 	data, err := json.Marshal(v)
 	if err != nil {
-		log.WithError(err).Error("failed to marshal given struct into json")
+		log.Error(err, "failed to marshal given struct into json")
 		http.Error(w, "failed to marshal struct", http.StatusInternalServerError)
 		return
 	}
+	log.V(2).Info("successfully marshalled JSON response", "Code", code, "Json", string(data))
 	// set the content type
 	w.Header().Set(ContentType, ApplicationJSON)
 	w.WriteHeader(code)
@@ -69,16 +84,17 @@ func ReturnJSON(w http.ResponseWriter, code int, v interface{}) {
 //
 // You should not write any additional data to the http.ResponseWriter
 // after this.
-func ReturnProtoJSON(w http.ResponseWriter, code int, v proto.Message) {
+func ReturnProtoJSON(log logr.Logger, w http.ResponseWriter, code int, v proto.Message) {
 	cfg := protojson.MarshalOptions{
 		EmitUnpopulated: true,
 	}
 	data, err := cfg.Marshal(v)
 	if err != nil {
-		log.WithError(err).Error("failed to marshal given proto.Message into JSON")
+		log.Error(err, "failed to marshal given proto.Message into JSON")
 		http.Error(w, "failed to marshal response", http.StatusInternalServerError)
 		return
 	}
+	log.V(2).Info("successfully marshalled JSON response", "Code", code, "Json", string(data))
 	// set the content type
 	w.Header().Set(ContentType, ApplicationJSON)
 	w.WriteHeader(code)

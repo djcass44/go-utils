@@ -22,7 +22,7 @@ import (
 	"net/http"
 )
 
-// GetClient returns an http.Client with
+// GetClient returns a http.Client with
 // ciphers configured according to Mozilla
 // recommendations (https://ssl-config.mozilla.org/#server=go&version=1.14.4&config=modern&guideline=5.6).
 // Set `legacy` to true to enable TLSv1.2
@@ -44,7 +44,8 @@ func GetClient(legacy bool) *http.Client {
 	}
 	return &http.Client{
 		Transport: &http.Transport{
-			TLSClientConfig: config,
+			TLSClientConfig:   config,
+			ForceAttemptHTTP2: true,
 		},
 	}
 }
