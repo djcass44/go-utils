@@ -18,6 +18,7 @@ jobs:
           - logging
           - otel
           - utilities
+          - orm
     steps:
       - name: Set up Go 1.x
         uses: actions/setup-go@v2
