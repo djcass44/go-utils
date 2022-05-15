@@ -22,6 +22,8 @@ import (
 )
 
 type Options struct {
+	// Enabled determines whether OpenTelemetry integration should be activated on startup.
+	Enabled bool
 	// ServiceName is the name of the service that traces should be registered against.
 	ServiceName string
 	// Environment is a name used to differentiate different deployments (e.g. production or quality)

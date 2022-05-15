@@ -32,5 +32,5 @@ func IsEnabled(feature string, options ...unleash.FeatureOption) bool {
 	if defaultClient == nil {
 		return false
 	}
-	return unleash.IsEnabled(feature, options...)
+	return defaultClient.IsEnabled(feature, options...)
 }

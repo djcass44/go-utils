@@ -36,6 +36,13 @@ import (
 // Build sets up the global OpenTelemetry context.
 func Build(ctx context.Context, opts Options) error {
 	log := logr.FromContextOrDiscard(ctx)
+
+	// skip if not enabled
+	if !opts.Enabled {
+		log.V(1).Info("skipping OpenTelemetry integration as it's currently disabled")
+		return nil
+	}
+
 	log.V(1).Info("enabling OpenTelemetry", "Service", opts.ServiceName, "Env", opts.Environment, "k8s.namespace", opts.KubeNamespace, "SampleRate", opts.SampleRate, "DefaultExporter", opts.Exporter == nil)
 	var exporter sdktrace.SpanExporter
 	if opts.Exporter == nil {
