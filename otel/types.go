@@ -34,5 +34,5 @@ type Options struct {
 	SampleRate float64
 	// Exporter allows you to define a custom trace exporter.
 	// Defaults to Jaeger if not provided.
-	Exporter *sdktrace.SpanExporter
+	Exporter sdktrace.SpanExporter
 }

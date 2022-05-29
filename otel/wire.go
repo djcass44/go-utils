@@ -44,16 +44,9 @@ func Build(ctx context.Context, opts Options) error {
 	}
 
 	log.V(1).Info("enabling OpenTelemetry", "Service", opts.ServiceName, "Env", opts.Environment, "k8s.namespace", opts.KubeNamespace, "SampleRate", opts.SampleRate, "DefaultExporter", opts.Exporter == nil)
-	var exporter sdktrace.SpanExporter
-	if opts.Exporter == nil {
-		log.V(2).Info("using jaeger environment configuration", "Key", "OTEL_EXPORTER_JAEGER_ENDPOINT", "Value", os.Getenv("OTEL_EXPORTER_JAEGER_ENDPOINT"))
-		log.V(3).Info("jaeger environment variables", "Endpoint", os.Getenv("OTEL_EXPORTER_JAEGER_ENDPOINT"), "User", os.Getenv("OTEL_EXPORTER_JAEGER_USER"), "Password", os.Getenv("OTEL_EXPORTER_JAEGER_PASSWORD"))
-		e, err := jaeger.New(jaeger.WithCollectorEndpoint())
-		if err != nil {
-			log.Error(err, "failed to setup OpenTelemetry Jaeger exporter")
-			return err
-		}
-		exporter = e
+	exporter, err := getExporter(ctx, &opts)
+	if err != nil {
+		return err
 	}
 	host, err := os.Hostname()
 	if err != nil {
@@ -88,6 +81,22 @@ func Build(ctx context.Context, opts Options) error {
 	go waitForShutdown(log, tp)
 
 	return nil
+}
+
+func getExporter(ctx context.Context, opts *Options) (sdktrace.SpanExporter, error) {
+	log := logr.FromContextOrDiscard(ctx)
+	if opts.Exporter == nil {
+		log.V(2).Info("using jaeger environment configuration", "Key", "OTEL_EXPORTER_JAEGER_ENDPOINT", "Value", os.Getenv("OTEL_EXPORTER_JAEGER_ENDPOINT"))
+		log.V(3).Info("jaeger environment variables", "Endpoint", os.Getenv("OTEL_EXPORTER_JAEGER_ENDPOINT"), "User", os.Getenv("OTEL_EXPORTER_JAEGER_USER"), "Password", os.Getenv("OTEL_EXPORTER_JAEGER_PASSWORD"))
+		e, err := jaeger.New(jaeger.WithCollectorEndpoint())
+		if err != nil {
+			log.Error(err, "failed to setup OpenTelemetry Jaeger exporter")
+			return nil, err
+		}
+		return e, nil
+	}
+	log.V(2).Info("using consumer-provided exporter")
+	return opts.Exporter, nil
 }
 
 func getRuntimeName() string {
