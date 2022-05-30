@@ -11,7 +11,7 @@ import (
 
 var (
 	meter             = global.MeterProvider().Meter("http")
-	metricDuration, _ = meter.SyncInt64().Counter(
+	metricDuration, _ = meter.SyncInt64().Histogram(
 		"http.server.duration",
 		instrument.WithUnit(unit.Milliseconds),
 		instrument.WithDescription("Measures the duration of the inbound HTTP request."),
@@ -44,7 +44,7 @@ func Middleware() func(handler http.Handler) http.Handler {
 			// snoop the request
 			m := httpsnoop.CaptureMetrics(handler, w, r)
 			// add our captured metrics
-			metricDuration.Add(r.Context(), m.Duration.Milliseconds(), attributes...)
+			metricDuration.Record(r.Context(), m.Duration.Milliseconds(), attributes...)
 			metricActiveRequests.Add(r.Context(), -1, attributes...)
 		})
 	}
