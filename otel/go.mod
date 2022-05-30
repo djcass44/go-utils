@@ -3,6 +3,7 @@ module github.com/djcass44/go-utils/otel
 go 1.18
 
 require (
+	github.com/felixge/httpsnoop v1.0.3
 	github.com/go-logr/logr v1.2.3
 	github.com/stretchr/testify v1.7.1
 	go.opentelemetry.io/otel v1.7.0
