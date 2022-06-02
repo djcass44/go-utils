@@ -24,6 +24,6 @@ import (
 )
 
 func TestNewMiddleware(t *testing.T) {
-	mw := NewMiddleware(testr.New(t))
+	mw := Middleware(testr.New(t))
 	assert.NotNil(t, mw)
 }

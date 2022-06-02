@@ -16,6 +16,16 @@ var (
 		instrument.WithUnit(unit.Milliseconds),
 		instrument.WithDescription("Measures the duration of the inbound HTTP request."),
 	)
+	metricRequestSize, _ = meter.SyncInt64().Histogram(
+		"http.server.request.size",
+		instrument.WithUnit(unit.Bytes),
+		instrument.WithDescription("Measures the size of the HTTP request."),
+	)
+	metricResponseSize, _ = meter.SyncInt64().Histogram(
+		"http.server.response.size",
+		instrument.WithUnit(unit.Bytes),
+		instrument.WithDescription("Measures the size of the HTTP response."),
+	)
 	metricActiveRequests, _ = meter.SyncInt64().UpDownCounter(
 		"http.server.active_requests",
 		instrument.WithUnit("{requests}"),
@@ -40,11 +50,14 @@ func Middleware() func(handler http.Handler) http.Handler {
 			// collect standard attributes from the
 			// incoming request
 			attributes := semconv.HTTPServerMetricAttributesFromHTTPRequest(serverName, r)
+			metricRequestSize.Record(r.Context(), r.ContentLength, attributes...)
 			metricActiveRequests.Add(r.Context(), 1, attributes...)
 			// snoop the request
 			m := httpsnoop.CaptureMetrics(handler, w, r)
+			attributes = append(attributes, semconv.HTTPAttributesFromHTTPStatusCode(m.Code)...)
 			// add our captured metrics
 			metricDuration.Record(r.Context(), m.Duration.Milliseconds(), attributes...)
+			metricResponseSize.Record(r.Context(), m.Written, attributes...)
 			metricActiveRequests.Add(r.Context(), -1, attributes...)
 		})
 	}

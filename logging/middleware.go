@@ -31,33 +31,25 @@ const (
 	KeyUserIss = "iss"
 )
 
-type Middleware struct {
-	log logr.Logger
-}
-
-func NewMiddleware(log logr.Logger) *Middleware {
-	return &Middleware{
-		log: log,
-	}
-}
-
-func (m *Middleware) ServeHTTP(h http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx, span := otel.Tracer("").Start(r.Context(), "logging_middleware")
-		defer span.End()
-		// create a new logger with our tracing information
-		log := m.log.WithValues(
-			KeyTraceID, span.SpanContext().TraceID(),
-			KeySpanID, span.SpanContext().SpanID(),
-		)
-		user, ok := client.GetContextUser(ctx)
-		if ok {
+func Middleware(log logr.Logger) func(handler http.Handler) http.Handler {
+	return func(handler http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ctx, span := otel.Tracer("").Start(r.Context(), "logging_middleware")
+			defer span.End()
+			// create a new logger with our tracing information
 			log = log.WithValues(
-				KeyUserSub, user.Sub,
-				KeyUserIss, user.Iss,
+				KeyTraceID, span.SpanContext().TraceID(),
+				KeySpanID, span.SpanContext().SpanID(),
 			)
-		}
-		// continue as normal
-		h.ServeHTTP(w, r.WithContext(logr.NewContext(ctx, log)))
-	})
+			user, ok := client.GetContextUser(ctx)
+			if ok {
+				log = log.WithValues(
+					KeyUserSub, user.Sub,
+					KeyUserIss, user.Iss,
+				)
+			}
+			// continue as normal
+			handler.ServeHTTP(w, r.WithContext(logr.NewContext(ctx, log)))
+		})
+	}
 }
