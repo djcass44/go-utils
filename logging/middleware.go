@@ -31,13 +31,13 @@ const (
 	KeyUserIss = "iss"
 )
 
-func Middleware(log logr.Logger) func(handler http.Handler) http.Handler {
+func Middleware(rootLogger logr.Logger) func(handler http.Handler) http.Handler {
 	return func(handler http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx, span := otel.Tracer("").Start(r.Context(), "logging_middleware")
 			defer span.End()
 			// create a new logger with our tracing information
-			log = log.WithValues(
+			log := rootLogger.WithValues(
 				KeyTraceID, span.SpanContext().TraceID(),
 				KeySpanID, span.SpanContext().SpanID(),
 			)
