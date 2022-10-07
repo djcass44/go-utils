@@ -18,12 +18,33 @@
 package logging
 
 import (
+	"context"
+	"github.com/go-logr/logr"
 	"github.com/go-logr/logr/testr"
 	"github.com/stretchr/testify/assert"
+	"gitlab.com/av1o/cap10/pkg/client"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 )
 
 func TestNewMiddleware(t *testing.T) {
-	mw := Middleware(testr.New(t))
+	ctx := logr.NewContext(context.TODO(), testr.NewWithOptions(t, testr.Options{Verbosity: 10}))
+	mw := Middleware(logr.FromContextOrDiscard(ctx))
 	assert.NotNil(t, mw)
+
+	// verify that we are seeing the log statements
+	// that we expect
+	w := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodGet, "https://example.org", nil)
+
+	userCtx := client.PersistUserCtx(ctx, nil, &client.UserClaim{
+		Sub: "CN=Test User",
+		Iss: "CN=Test Issuer",
+	})
+
+	mw(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log := logr.FromContextOrDiscard(r.Context())
+		log.Info("test")
+	})).ServeHTTP(w, req.WithContext(userCtx))
 }

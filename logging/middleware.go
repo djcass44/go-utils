@@ -29,6 +29,8 @@ const (
 	KeySpanID  = "span_id"
 	KeyUserSub = "sub"
 	KeyUserIss = "iss"
+
+	ValNotPresent = "null"
 )
 
 func Middleware(rootLogger logr.Logger) func(handler http.Handler) http.Handler {
@@ -41,13 +43,18 @@ func Middleware(rootLogger logr.Logger) func(handler http.Handler) http.Handler 
 				KeyTraceID, span.SpanContext().TraceID(),
 				KeySpanID, span.SpanContext().SpanID(),
 			)
+			var sub, iss = ValNotPresent, ValNotPresent
 			user, ok := client.GetContextUser(ctx)
+			// if there is a user present, capture
+			// their identity
 			if ok {
-				log = log.WithValues(
-					KeyUserSub, user.Sub,
-					KeyUserIss, user.Iss,
-				)
+				sub = user.Sub
+				iss = user.Iss
 			}
+			log = log.WithValues(
+				KeyUserSub, sub,
+				KeyUserIss, iss,
+			)
 			// continue as normal
 			handler.ServeHTTP(w, r.WithContext(logr.NewContext(ctx, log)))
 		})
