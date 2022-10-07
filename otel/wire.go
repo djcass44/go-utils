@@ -43,6 +43,12 @@ func Build(ctx context.Context, opts Options) error {
 		return nil
 	}
 
+	// if no namespace was provided, check
+	// the environment
+	if opts.KubeNamespace == "" {
+		opts.KubeNamespace = os.Getenv("KUBE_NAMESPACE")
+	}
+
 	log.V(1).Info("enabling OpenTelemetry", "Service", opts.ServiceName, "Env", opts.Environment, "k8s.namespace", opts.KubeNamespace, "SampleRate", opts.SampleRate, "DefaultExporter", opts.Exporter == nil)
 	exporter, err := getExporter(ctx, &opts)
 	if err != nil {
@@ -85,6 +91,8 @@ func Build(ctx context.Context, opts Options) error {
 
 func getExporter(ctx context.Context, opts *Options) (sdktrace.SpanExporter, error) {
 	log := logr.FromContextOrDiscard(ctx)
+	// if no explicit exporter is provided, default
+	// to the Jaeger exporter
 	if opts.Exporter == nil {
 		log.V(2).Info("using jaeger environment configuration", "Key", "OTEL_EXPORTER_JAEGER_ENDPOINT", "Value", os.Getenv("OTEL_EXPORTER_JAEGER_ENDPOINT"))
 		log.V(3).Info("jaeger environment variables", "Endpoint", os.Getenv("OTEL_EXPORTER_JAEGER_ENDPOINT"), "User", os.Getenv("OTEL_EXPORTER_JAEGER_USER"), "Password", os.Getenv("OTEL_EXPORTER_JAEGER_PASSWORD"))

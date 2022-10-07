@@ -10,6 +10,7 @@ import (
 	"go.opentelemetry.io/otel/sdk/metric/export/aggregation"
 	processor "go.opentelemetry.io/otel/sdk/metric/processor/basic"
 	selector "go.opentelemetry.io/otel/sdk/metric/selector/simple"
+	"os"
 )
 
 // New creates and configures an OpenTelemetry prometheus
@@ -45,4 +46,24 @@ func New(ctx context.Context, c *prometheus.Config, isGlobal bool) (*prometheus.
 	}
 
 	return exporter, nil
+}
+
+// NewDefault creates and configures OpenTelemetry for exporting
+// Prometheus metrics. It uses the default Prometheus
+// configuration and sets it as the global provider.
+func NewDefault(ctx context.Context) (*prometheus.Exporter, error) {
+	return New(ctx, nil, true)
+}
+
+// MustNewDefault calls NewDefault and panics if there
+// was an error.
+func MustNewDefault(ctx context.Context) *prometheus.Exporter {
+	log := logr.FromContextOrDiscard(ctx)
+	prom, err := NewDefault(ctx)
+	if err != nil {
+		log.Error(err, "failed to configure OpenTelemetry Prometheus exporter")
+		os.Exit(1)
+		return nil
+	}
+	return prom
 }
