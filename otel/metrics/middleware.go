@@ -2,34 +2,33 @@ package metrics
 
 import (
 	"github.com/felixge/httpsnoop"
-	"go.opentelemetry.io/otel/metric/global"
-	"go.opentelemetry.io/otel/metric/instrument"
-	"go.opentelemetry.io/otel/metric/unit"
-	semconv "go.opentelemetry.io/otel/semconv/v1.10.0"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/metric"
+	"go.opentelemetry.io/otel/semconv/v1.20.0/httpconv"
 	"net/http"
 )
 
 var (
-	meter             = global.MeterProvider().Meter("http")
-	metricDuration, _ = meter.SyncInt64().Histogram(
+	meter             = otel.GetMeterProvider().Meter("http")
+	metricDuration, _ = meter.Int64Histogram(
 		"http.server.duration",
-		instrument.WithUnit(unit.Milliseconds),
-		instrument.WithDescription("Measures the duration of the inbound HTTP request."),
+		metric.WithUnit("{s}"),
+		metric.WithDescription("Measures the duration of the inbound HTTP request."),
 	)
-	metricRequestSize, _ = meter.SyncInt64().Histogram(
+	metricRequestSize, _ = meter.Int64Histogram(
 		"http.server.request.size",
-		instrument.WithUnit(unit.Bytes),
-		instrument.WithDescription("Measures the size of the HTTP request."),
+		metric.WithUnit("{By}"),
+		metric.WithDescription("Measures the size of the HTTP request."),
 	)
-	metricResponseSize, _ = meter.SyncInt64().Histogram(
+	metricResponseSize, _ = meter.Int64Histogram(
 		"http.server.response.size",
-		instrument.WithUnit(unit.Bytes),
-		instrument.WithDescription("Measures the size of the HTTP response."),
+		metric.WithUnit("{By}"),
+		metric.WithDescription("Measures the size of the HTTP response."),
 	)
-	metricActiveRequests, _ = meter.SyncInt64().UpDownCounter(
+	metricActiveRequests, _ = meter.Int64UpDownCounter(
 		"http.server.active_requests",
-		instrument.WithUnit("{requests}"),
-		instrument.WithDescription("Measures the number of concurrent HTTP requests that are currently in-flight."),
+		metric.WithUnit("{requests}"),
+		metric.WithDescription("Measures the number of concurrent HTTP requests that are currently in-flight."),
 	)
 )
 
@@ -49,16 +48,15 @@ func Middleware() func(handler http.Handler) http.Handler {
 			}
 			// collect standard attributes from the
 			// incoming request
-			attributes := semconv.HTTPServerMetricAttributesFromHTTPRequest(serverName, r)
-			metricRequestSize.Record(r.Context(), r.ContentLength, attributes...)
-			metricActiveRequests.Add(r.Context(), 1, attributes...)
+			attributes := httpconv.ServerRequest(serverName, r)
+			metricRequestSize.Record(r.Context(), r.ContentLength, metric.WithAttributes(attributes...))
+			metricActiveRequests.Add(r.Context(), 1, metric.WithAttributes(attributes...))
 			// snoop the request
 			m := httpsnoop.CaptureMetrics(handler, w, r)
-			attributes = append(attributes, semconv.HTTPAttributesFromHTTPStatusCode(m.Code)...)
 			// add our captured metrics
-			metricDuration.Record(r.Context(), m.Duration.Milliseconds(), attributes...)
-			metricResponseSize.Record(r.Context(), m.Written, attributes...)
-			metricActiveRequests.Add(r.Context(), -1, attributes...)
+			metricDuration.Record(r.Context(), m.Duration.Milliseconds(), metric.WithAttributes(attributes...))
+			metricResponseSize.Record(r.Context(), m.Written, metric.WithAttributes(attributes...))
+			metricActiveRequests.Add(r.Context(), -1, metric.WithAttributes(attributes...))
 		})
 	}
 }

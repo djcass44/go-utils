@@ -22,7 +22,7 @@ import (
 	"github.com/go-logr/logr"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/exporters/jaeger"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
@@ -92,13 +92,13 @@ func Build(ctx context.Context, opts Options) error {
 func getExporter(ctx context.Context, opts *Options) (sdktrace.SpanExporter, error) {
 	log := logr.FromContextOrDiscard(ctx)
 	// if no explicit exporter is provided, default
-	// to the Jaeger exporter
+	// to the OTLP exporter
 	if opts.Exporter == nil {
-		log.V(2).Info("using jaeger environment configuration", "Key", "OTEL_EXPORTER_JAEGER_ENDPOINT", "Value", os.Getenv("OTEL_EXPORTER_JAEGER_ENDPOINT"))
-		log.V(3).Info("jaeger environment variables", "Endpoint", os.Getenv("OTEL_EXPORTER_JAEGER_ENDPOINT"), "User", os.Getenv("OTEL_EXPORTER_JAEGER_USER"), "Password", os.Getenv("OTEL_EXPORTER_JAEGER_PASSWORD"))
-		e, err := jaeger.New(jaeger.WithCollectorEndpoint())
+		log.V(2).Info("using otlp environment configuration", "key", "OTEL_EXPORTER_ENDPOINT", "value", os.Getenv("OTEL_EXPORTER_ENDPOINT"))
+		log.V(3).Info("otlp environment variables", "endpoint", os.Getenv("OTEL_EXPORTER_ENDPOINT"), "path", os.Getenv("OTEL_EXPORTER_PATH"))
+		e, err := otlptracehttp.New(ctx, otlptracehttp.WithEndpoint(os.Getenv("OTEL_EXPORTER_ENDPOINT")), otlptracehttp.WithURLPath(os.Getenv("OTEL_EXPORTER_PATH")))
 		if err != nil {
-			log.Error(err, "failed to setup OpenTelemetry Jaeger exporter")
+			log.Error(err, "failed to setup OpenTelemetry OTLP exporter")
 			return nil, err
 		}
 		return e, nil

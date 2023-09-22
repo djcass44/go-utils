@@ -23,7 +23,7 @@ func Middleware() func(handler http.Handler) http.Handler {
 					SpanID:  sid,
 					Remote:  false,
 				}))
-				log.V(6).Info("generated new trace", "NewTraceID", tid.String(), "NewSpanID", sid.String())
+				log.V(6).Info("generated new trace", "new_trace_id", tid.String(), "new_span_id", sid.String())
 			}
 
 			// continue as normal
