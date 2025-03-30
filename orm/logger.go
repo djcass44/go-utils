@@ -58,7 +58,7 @@ func (g *GormLogger) Trace(_ context.Context, begin time.Time, fc func() (sql st
 	elapsed := time.Since(begin)
 	slow := elapsed > g.slowThreshold && g.slowThreshold != 0
 	sql, rows := fc()
-	kv := []any{"SQL", sql, "Rows", rows, "Elapsed", elapsed, "Slow", slow}
+	kv := []any{"sql", sql, "rows", rows, "elapsed", elapsed, "slow", slow}
 	if err != nil {
 		g.log.V(4).Error(err, "tracing statement", kv...)
 		return
