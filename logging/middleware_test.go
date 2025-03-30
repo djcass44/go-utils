@@ -22,7 +22,6 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/go-logr/logr/testr"
 	"github.com/stretchr/testify/assert"
-	"gitlab.com/av1o/cap10/pkg/client"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -38,13 +37,8 @@ func TestNewMiddleware(t *testing.T) {
 	w := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodGet, "https://example.org", nil)
 
-	userCtx := client.PersistUserCtx(ctx, nil, &client.UserClaim{
-		Sub: "CN=Test User",
-		Iss: "CN=Test Issuer",
-	})
-
 	mw(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log := logr.FromContextOrDiscard(r.Context())
 		log.Info("test")
-	})).ServeHTTP(w, req.WithContext(userCtx))
+	})).ServeHTTP(w, req)
 }

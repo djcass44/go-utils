@@ -1,6 +1,8 @@
 module github.com/djcass44/go-utils/flagging
 
-go 1.18
+go 1.21
+
+toolchain go1.24.1
 
 require (
 	github.com/Unleash/unleash-client-go/v3 v3.9.2
